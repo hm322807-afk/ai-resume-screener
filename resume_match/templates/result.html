@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Result - AI Resume Screener</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Analysis Result</h1>
+            <a href="/" class="back-link">← Analyze Another</a>
+        </header>
+
+        <div class="result-grid">
+            <!-- Score Card -->
+            <div class="card score-card {{ rec_class }}">
+                <h2>Match Score</h2>
+                <div class="score-circle">
+                    <span class="score-value">{{ final_score }}%</span>
+                </div>
+                <div class="recommendation">
+                    Recommendation: <strong>{{ recommendation }}</strong>
+                </div>
+                <div class="metrics">
+                    <div class="metric">
+                        <span>TF-IDF Score</span>
+                        <strong>{{ tfidf_score }}%</strong>
+                    </div>
+                    <div class="metric">
+                        <span>BERT Score</span>
+                        <strong>{{ bert_score }}%</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skill Analysis -->
+            <div class="card skills-card">
+                <h2>Skill Gap Analysis</h2>
+
+                <div class="skill-section">
+                    <h3>✅ Matching Skills</h3>
+                    <div class="tags">
+                        {% if matching_skills %}
+                        {% for skill in matching_skills %}
+                        <span class="tag match">{{ skill }}</span>
+                        {% endfor %}
+                        {% else %}
+                        <p class="no-data">No direct skill matches found.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="skill-section">
+                    <h3>❌ Missing Skills</h3>
+                    <div class="tags">
+                        {% if missing_skills %}
+                        {% for skill in missing_skills %}
+                        <span class="tag missing">{{ skill }}</span>
+                        {% endfor %}
+                        {% else %}
+                        <p class="no-data">No missing skills detected!</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
