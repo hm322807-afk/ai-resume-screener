@@ -1,7 +1,0 @@
-flask
-scikit-learn
-pandas
-numpy
-nltk
-sentence-transformers
-pdfminer.six
