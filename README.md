@@ -54,19 +54,20 @@ Open your browser and go to: `http://127.0.0.1:5000`
 
 ## 📂 Project Structure
 ```
-resume_match/
+ai-resume-screener/
 ├── app.py                 # Main Flask application
 ├── requirements.txt       # Dependencies
 ├── static/
-│   └── style.css          # CSS styles
+│   └── style.css          # Modern CSS styles
 ├── templates/
-│   ├── index.html         # Upload page
-│   └── result.html        # Results page
+│   ├── index.html         # Modern Upload page
+│   └── ranking.html       # Responsive Results dashboard
 ├── utils/
 │   ├── basic_nlp.py       # Cleaning & skill extraction
 │   ├── matchers.py        # TF-IDF & BERT logic
+│   ├── lml_feedback.py    # AI feedback generation
 │   └── parsers.py         # PDF parsing
-└── data/                  # Uploads folder
+└── data/                  # Internal uploads folder
 ```
 
 ## 📸 Screenshots

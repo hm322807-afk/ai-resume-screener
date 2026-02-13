@@ -85,62 +85,65 @@
     </div>
 
     <script>
+        // Data Injection from Flask/Jinja
+        const resultsData = {{ results | tojson }};
+
         // Chart Defaults for Dark Mode
         Chart.defaults.color = '#94a3b8';
         Chart.defaults.borderColor = '#334155';
 
         // 1. Bar Chart (Ranking)
-        const ctxBar = document.getElementById('rankingChart').getContext('2d');
-        new Chart(ctxBar, {
-            type: 'bar',
-            data: {
-                labels: [{% for res in results %}"{{ res.filename }}",{% endfor %}],
-            datasets: [{
-                label: 'Match %',
-                data: [{% for res in results %}{{ res.final_score }}, {% endfor %}],
-            backgroundColor: '#818cf8',
-            borderRadius: 4
-                }]
-            },
-            options: {
-            responsive: true,
-            plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true, max: 100 } }
-        }
-        });
+        if (resultsData && resultsData.length > 0) {
+            const ctxBar = document.getElementById('rankingChart').getContext('2d');
+            new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: resultsData.map(r => r.filename),
+                    datasets: [{
+                        label: 'Match %',
+                        data: resultsData.map(r => r.final_score),
+                        backgroundColor: '#818cf8',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, max: 100 } }
+                }
+            });
 
-        // 2. Radar Chart (Top Candidate)
-        {% if results %}
-        const topRes = {{ results[0] | tojson }};
-        const ctxRadar = document.getElementById('radarChart').getContext('2d');
-        new Chart(ctxRadar, {
-            type: 'radar',
-            data: {
-                labels: ['Technical', 'Soft Skills', 'Experience'],
-                datasets: [{
-                    label: topRes.filename,
-                    data: [
-                        topRes.category_scores['Technical'],
-                        topRes.category_scores['Soft Skills'],
-                        topRes.category_scores['Experience']
-                    ],
-                    backgroundColor: 'rgba(244, 114, 182, 0.2)',
-                    borderColor: '#f472b6',
-                    pointBackgroundColor: '#f472b6'
-                }]
-            },
-            options: {
-                scales: { r: { suggestedMin: 0, suggestedMax: 100, ticks: { display: false } } }
-            }
-        });
-        {% endif %}
+            // 2. Radar Chart (Top Candidate)
+            const topRes = resultsData[0];
+            const ctxRadar = document.getElementById('radarChart').getContext('2d');
+            new Chart(ctxRadar, {
+                type: 'radar',
+                data: {
+                    labels: ['Technical', 'Soft Skills', 'Experience'],
+                    datasets: [{
+                        label: topRes.filename,
+                        data: [
+                            topRes.category_scores['Technical'],
+                            topRes.category_scores['Soft Skills'],
+                            topRes.category_scores['Experience']
+                        ],
+                        backgroundColor: 'rgba(244, 114, 182, 0.2)',
+                        borderColor: '#f472b6',
+                        pointBackgroundColor: '#f472b6'
+                    }]
+                },
+                options: {
+                    scales: { r: { suggestedMin: 0, suggestedMax: 100, ticks: { display: false } } }
+                }
+            });
+        }
 
         function exportToCSV() {
             let csvContent = "data:text/csv;charset=utf-8,";
             csvContent += "Rank,Filename,Score,Recommendation,Feedback,Technical,SoftSkills,Experience\n";
-            {% for res in results %}
-            csvContent += `{{ loop.index }},"{{ res.filename }}",{{ res.final_score }},{{ res.recommendation }},"{{ res.ai_feedback }}",{{ res.category_scores['Technical'] }},{{ res.category_scores['Soft Skills'] }},{{ res.category_scores['Experience'] }}\n`;
-            {% endfor %}
+            resultsData.forEach((res, index) => {
+                csvContent += `${index + 1},"${res.filename}",${res.final_score},${res.recommendation},"${res.ai_feedback}",${res.category_scores['Technical']},${res.category_scores['Soft Skills']},${res.category_scores['Experience']}\n`;
+            });
             const link = document.createElement("a");
             link.href = encodeURI(csvContent);
             link.download = "ai_resume_ranking.csv";
