@@ -1,0 +1,21 @@
+# Virtual Environment
+venv/
+env/
+.env
+
+# Python compilation
+__pycache__/
+*.py[cod]
+*$py.class
+
+# User Data (Private)
+data/
+*.pdf
+
+# IDE settings
+.vscode/
+.idea/
+
+# System
+Thumbs.db
+Desktop.ini

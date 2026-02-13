@@ -12,52 +12,52 @@
 <body>
     <div id="loading-overlay">
         <div class="spinner"></div>
-        <h3>Analyzing Resumes...</h3>
-        <p>This may take a few seconds.</p>
+        <h3 class="mb-4">Analyzing Resumes...</h3>
+        <p class="text-muted">Extracting skills and calculating compatibility matches.</p>
     </div>
 
-    <div class="container">
-        <header>
-            <h1>AI Resume Screener</h1>
-            <p>Upload your resume and the job description to check compatibility.</p>
+    <div class="container section-narrow">
+        <header class="text-center mb-8">
+            <h1 class="text-gradient">AI Resume Screener</h1>
+            <p>Upload resumes and a job description to identify the best talent instantly.</p>
         </header>
 
-        <div class="card">
+        <main class="card">
             <form action="/analyze" method="post" enctype="multipart/form-data">
                 <div class="form-group">
-                    <label for="resume">Upload Resume (PDF)</label>
-                    <div class="file-upload-wrapper">
-                        <input type="file" id="resume" name="resume" accept=".pdf" required
-                            onchange="updateFileName(this)">
-                        <label for="resume" class="file-upload-box">
-                            <span class="icon">📄</span>
-                            <span class="text" id="file-name">Click to upload or drag and drop</span>
-                        </label>
+                    <label>Upload Resumes (PDF)</label>
+                    <div class="file-drop-zone" onclick="document.getElementById('resumes').click()">
+                        <span class="icon">📄</span>
+                        <span id="file-count" class="text-muted">Click to upload or drag and drop multiple resumes</span>
+                        <input type="file" id="resumes" name="resume" accept=".pdf" multiple required
+                            onchange="updateFileCount(this)">
                     </div>
                 </div>
 
-                <script>
-                    function updateFileName(input) {
-                        const fileName = input.files[0] ? input.files[0].name : "Click to upload or drag and drop";
-                        document.getElementById('file-name').textContent = fileName;
-                        document.querySelector('.file-upload-box').style.borderColor = "#4f46e5";
-                        document.querySelector('.file-upload-box').style.backgroundColor = "#eef2ff";
-                    }
-                </script>
-
                 <div class="form-group">
                     <label for="job_desc">Job Description</label>
-                    <textarea id="job_desc" name="job_desc" rows="10" placeholder="Paste the job description here..."
+                    <textarea id="job_desc" name="job_desc" placeholder="Paste the full job description here..."
                         required></textarea>
                 </div>
 
-                <button type="submit" class="btn-primary"
-                    onclick="document.getElementById('loading-overlay').classList.add('active')">
-                    Analyze Compatibility
-                </button>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary"
+                        onclick="document.getElementById('loading-overlay').classList.add('active')">
+                        🚀 Start Analysis
+                    </button>
+                </div>
             </form>
-        </div>
+        </main>
     </div>
+
+    <script>
+        function updateFileCount(input) {
+            const count = input.files.length;
+            const text = count === 1 ? input.files[0].name : `${count} files selected`;
+            document.getElementById('file-count').textContent = text;
+            input.parentElement.style.borderColor = "var(--primary)";
+        }
+    </script>
 </body>
 
 </html>

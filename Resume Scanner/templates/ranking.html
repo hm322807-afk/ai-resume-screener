@@ -11,69 +11,64 @@
 </head>
 
 <body>
-    <div class="container">
-        <header class="text-center mb-8">
-            <h1 class="text-gradient">Candidate Ranking</h1>
-            <div class="text-center">
-                <a href="/" class="btn btn-secondary mb-4">← Analyze New Batch</a>
-            </div>
+    <div class="container container-large">
+        <header>
+            <h1>Candidate Ranking</h1>
+            <a href="/" class="back-link">← Analyze New Batch</a>
         </header>
 
-        <!-- Visualization Grid -->
-        <div class="grid grid-cols-2 mb-8">
-            <section class="card">
-                <h3 class="mb-4">Top Candidates</h3>
+        <!-- Visualization Row -->
+        <div class="metrics-row" style="display: flex; gap: 2rem; margin-bottom: 2rem;">
+            <div class="card" style="flex: 1;">
+                <h2>Top Candidates</h2>
                 <canvas id="rankingChart"></canvas>
-            </section>
-            <section class="card">
-                <h3 class="mb-4">Category Breakdown</h3>
+            </div>
+            <div class="card" style="flex: 1;">
+                <h2>Category Breakdown (Top Match)</h2>
                 <canvas id="radarChart"></canvas>
-            </section>
+            </div>
         </div>
 
         <!-- Ranking Table -->
-        <main class="card">
-            <div class="mb-8"
-                style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div class="card">
+            <div class="card-header-row">
                 <h2>Leaderboard</h2>
-                <button onclick="exportToCSV()" class="btn btn-secondary">⬇ Export Results</button>
+                <button onclick="exportToCSV()" class="btn-secondary">⬇ Export CSV</button>
             </div>
 
-            <div class="table-wrapper">
+            <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
                             <th>Rank</th>
                             <th>Candidate</th>
                             <th>Match %</th>
-                            <th>AI Summary</th>
-                            <th>Categories</th>
+                            <th>AI Feedback</th>
+                            <th>Category Scores</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for res in results %}
                         <tr>
-                            <td><strong>#{{ loop.index }}</strong></td>
+                            <td>#{{ loop.index }}</td>
                             <td>
-                                <div><strong>{{ res.filename }}</strong></div>
-                                <div class="badge badge-{{ res.rec_class }}"
-                                    style="margin-top: 0.5rem; display: inline-block;">
-                                    {{ res.recommendation }}
-                                </div>
+                                <strong>{{ res.filename }}</strong><br>
+                                <span class="tag {{ res.rec_class }}"
+                                    style="margin-top:0.5rem; display:inline-block;">{{ res.recommendation }}</span>
                             </td>
                             <td>
-                                <div class="badge badge-{{ res.rec_class }}" style="font-size: 1.125rem;">
+                                <div class="score-badge {{ res.rec_class }}" style="font-size: 1.2rem;">
                                     {{ res.final_score }}%
                                 </div>
                             </td>
-                            <td style="max-width: 320px; font-size: 0.875rem; color: var(--text-muted);">
+                            <td style="max-width: 400px; font-size: 0.9rem; color: #4b5563; line-height: 1.5;">
                                 {{ res.ai_feedback }}
                             </td>
                             <td>
-                                <div style="font-size: 0.75rem; display: grid; gap: 0.25rem;">
-                                    <div>💻 Tech: {{ res.category_scores['Technical'] }}%</div>
-                                    <div>🗣 Soft: {{ res.category_scores['Soft Skills'] }}%</div>
-                                    <div>📅 Exp: {{ res.category_scores['Experience'] }}%</div>
+                                <div style="font-size: 0.85rem;">
+                                    <div>💻 Tech: <strong>{{ res.category_scores['Technical'] }}%</strong></div>
+                                    <div>🗣 Soft: <strong>{{ res.category_scores['Soft Skills'] }}%</strong></div>
+                                    <div>📅 Exp: <strong>{{ res.category_scores['Experience'] }}%</strong></div>
                                 </div>
                             </td>
                         </tr>
@@ -81,14 +76,10 @@
                     </tbody>
                 </table>
             </div>
-        </main>
+        </div>
     </div>
 
     <script>
-        // Chart Defaults for Dark Mode
-        Chart.defaults.color = '#94a3b8';
-        Chart.defaults.borderColor = '#334155';
-
         // 1. Bar Chart (Ranking)
         const ctxBar = document.getElementById('rankingChart').getContext('2d');
         new Chart(ctxBar, {
@@ -96,20 +87,17 @@
             data: {
                 labels: [{% for res in results %}"{{ res.filename }}",{% endfor %}],
             datasets: [{
-                label: 'Match %',
+                label: 'Match Percentage',
                 data: [{% for res in results %}{{ res.final_score }}, {% endfor %}],
-            backgroundColor: '#818cf8',
-            borderRadius: 4
+            backgroundColor: '#4f46e5',
+            borderRadius: 6
                 }]
             },
-            options: {
-            responsive: true,
-            plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true, max: 100 } }
-        }
+            options: { responsive: true, scales: { y: { beginAtZero: true, max: 100 } } }
         });
 
         // 2. Radar Chart (Top Candidate)
+        // We take the first result (top ranked) for the radar chart
         {% if results %}
         const topRes = {{ results[0] | tojson }};
         const ctxRadar = document.getElementById('radarChart').getContext('2d');
@@ -124,27 +112,37 @@
                         topRes.category_scores['Soft Skills'],
                         topRes.category_scores['Experience']
                     ],
-                    backgroundColor: 'rgba(244, 114, 182, 0.2)',
-                    borderColor: '#f472b6',
-                    pointBackgroundColor: '#f472b6'
+                    backgroundColor: 'rgba(236, 72, 153, 0.2)',
+                    borderColor: '#ec4899',
+                    pointBackgroundColor: '#ec4899',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#ec4899'
                 }]
             },
             options: {
-                scales: { r: { suggestedMin: 0, suggestedMax: 100, ticks: { display: false } } }
+                elements: { line: { tension: 0.3 } },
+                scales: { r: { angleLines: { display: false }, suggestedMin: 0, suggestedMax: 100 } }
             }
         });
         {% endif %}
 
+        // Client-side CSV Export
         function exportToCSV() {
             let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Rank,Filename,Score,Recommendation,Feedback,Technical,SoftSkills,Experience\n";
+            csvContent += "Rank,Filename,Final Score,Status,AI Feedback,Technical,Soft Skills,Experience\n";
+
             {% for res in results %}
             csvContent += `{{ loop.index }},"{{ res.filename }}",{{ res.final_score }},{{ res.recommendation }},"{{ res.ai_feedback }}",{{ res.category_scores['Technical'] }},{{ res.category_scores['Soft Skills'] }},{{ res.category_scores['Experience'] }}\n`;
             {% endfor %}
+
+            const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
-            link.href = encodeURI(csvContent);
-            link.download = "ai_resume_ranking.csv";
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "resume_ranking_report_v3.csv");
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
         }
     </script>
 </body>
